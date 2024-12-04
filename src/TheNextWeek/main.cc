@@ -404,9 +404,9 @@ void final_scene(int image_width, int samples_per_pixel, int max_depth) {
 }
 
 
-void mesh_scene() {
+void mesh_scene( std::string model_name) {
 	auto mat = make_shared<lambertian>(color(0.8, 0.3, 0.3));
-	auto mesh = parse_obj("model.obj", mat);
+	auto mesh = parse_obj(model_name, mat);
 
 	hittable_list world;
 	world.add(mesh);
@@ -419,8 +419,8 @@ void mesh_scene() {
 	cam.max_depth = 10 ;
 	cam.background = color(0.70, 0.80, 1.00);
 
-	cam.vfov = 30;
-	cam.lookfrom = point3(0,0,5);
+	cam.vfov = 45; 
+	cam.lookfrom = point3(100,10,5);
 	cam.lookat = point3(0, 0, 0);
 	cam.vup = vec3(0, 1, 0);
 
@@ -456,6 +456,10 @@ void d20_scene() {
 	auto sphere_light_material = make_shared<diffuse_light>(color(20, 20, 20));
 	world.add(make_shared<sphere>(point3(2, 6, -2), 1, sphere_light_material)); // Visible light sphere
 
+
+	// BHN ON   :D 
+	world = hittable_list(make_shared<bvh_node>(world));
+
 	// Camera setup
 	camera cam;
 	cam.aspect_ratio = 16.0 / 9.0;
@@ -485,8 +489,8 @@ int main() {
 		case 7:  cornell_box();               break;
 		case 8:  cornell_smoke();             break;
 		case 9:  final_scene(800, 10000, 40); break;
-		case 10: mesh_scene();               break;
-		case 11: d20_scene();                break;
+		case 10: mesh_scene("model_to_big.obj");    break;
+		case 11: d20_scene();                 break;
 		default: final_scene(400,   250,  4); break;
 	}
 }

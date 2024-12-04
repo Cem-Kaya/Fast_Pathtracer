@@ -20,12 +20,7 @@
 
 class bvh_node : public hittable {
   public:
-    bvh_node(hittable_list list) : bvh_node(list.objects, 0, list.objects.size()) {
-        // There's a C++ subtlety here. This constructor (without span indices) creates an
-        // implicit copy of the hittable list, which we will modify. The lifetime of the copied
-        // list only extends until this constructor exits. That's OK, because we only need to
-        // persist the resulting bounding volume hierarchy.
-    }
+   
 
     bvh_node(std::vector<shared_ptr<hittable>>& objects, size_t start, size_t end) {
         // Build the bounding box of the span of source objects.
@@ -54,6 +49,49 @@ class bvh_node : public hittable {
             right = make_shared<bvh_node>(objects, mid, end);
         }
     }
+
+    // ==================================================================================================================================================
+    // OUR CODE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // takes a list of hitables liek triangle list and makes a bvh from that 
+    bvh_node(const hittable_list& list) {
+        bbox = aabb::empty;
+
+        // Extract all hittables 
+        std::vector<shared_ptr<hittable>> objects;
+        for (const auto& object : list.objects) {
+            // If the object is a list itself, add its elements
+            if (auto obj_list = std::dynamic_pointer_cast<hittable_list>(object)) {
+                objects.insert(objects.end(), obj_list->objects.begin(), obj_list->objects.end());
+            }
+            else {
+                objects.push_back(object);
+            }
+        }
+
+        // Now build the BVH over the extracted objects
+        int axis = bbox.longest_axis();
+        auto comparator = (axis == 0) ? box_x_compare
+            : (axis == 1) ? box_y_compare
+            : box_z_compare;
+
+        int object_span = objects.size();
+
+        if (object_span == 1) {
+            left = right = objects[0];
+        }
+        else if (object_span == 2) {
+            left = objects[0];
+            right = objects[1];
+        }
+        else {
+            std::sort(std::begin(objects), std::end(objects), comparator);
+
+            auto mid = object_span / 2;
+            left = make_shared<bvh_node>(objects, 0, mid);
+            right = make_shared<bvh_node>(objects, mid, object_span);
+        }
+    }
+
 
     bool hit(const ray& r, interval ray_t, hit_record& rec) const override {
         if (!bbox.hit(r, ray_t))
