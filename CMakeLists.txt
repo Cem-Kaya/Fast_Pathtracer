@@ -36,6 +36,8 @@ set ( SOURCE_NEXT_WEEK
   src/TheNextWeek/sphere.h
   src/TheNextWeek/texture.h
   src/TheNextWeek/vec3.h
+  src/TheNextWeek/triangle.h
+
 )
 
 include_directories(src)

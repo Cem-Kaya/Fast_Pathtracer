@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <CustomBuild Include="W:\Google_drive\Sync\UU\1_2\ACG\HW\Path_tracer\4\Fast_Pathtracer\CMakeLists.txt" />
+    <CustomBuild Include="W:\Google_drive\Sync\UU\1_2\ACG\HW\Fast_Pathtracer\CMakeLists.txt" />
   </ItemGroup>
   <ItemGroup>
   </ItemGroup>
