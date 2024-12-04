@@ -1,0 +1,6 @@
+# ninja log v6
+2	1220	7550423472019280	CMakeFiles/theNextWeek.dir/src/TheNextWeek/main.cc.obj	609b23af2f26db65
+1221	1447	7550423484195520	theNextWeek.exe	c7125ce01c49c1bf
+13	105	7550424997876296	build.ninja	43ba21de2f35dc35
+17	868	7550424998466175	CMakeFiles/theNextWeek.dir/src/TheNextWeek/main.cc.obj	609b23af2f26db65
+868	1004	7550425006979002	theNextWeek.exe	c7125ce01c49c1bf
