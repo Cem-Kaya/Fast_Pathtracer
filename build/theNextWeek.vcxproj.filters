@@ -1,0 +1,75 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="W:\Google_drive\Sync\UU\1_2\ACG\HW\Path_tracer\4\Fast_Pathtracer\src\TheNextWeek\main.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="W:\Google_drive\Sync\UU\1_2\ACG\HW\Path_tracer\4\Fast_Pathtracer\src\external\stb_image.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="W:\Google_drive\Sync\UU\1_2\ACG\HW\Path_tracer\4\Fast_Pathtracer\src\TheNextWeek\aabb.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="W:\Google_drive\Sync\UU\1_2\ACG\HW\Path_tracer\4\Fast_Pathtracer\src\TheNextWeek\bvh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="W:\Google_drive\Sync\UU\1_2\ACG\HW\Path_tracer\4\Fast_Pathtracer\src\TheNextWeek\camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="W:\Google_drive\Sync\UU\1_2\ACG\HW\Path_tracer\4\Fast_Pathtracer\src\TheNextWeek\color.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="W:\Google_drive\Sync\UU\1_2\ACG\HW\Path_tracer\4\Fast_Pathtracer\src\TheNextWeek\constant_medium.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="W:\Google_drive\Sync\UU\1_2\ACG\HW\Path_tracer\4\Fast_Pathtracer\src\TheNextWeek\hittable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="W:\Google_drive\Sync\UU\1_2\ACG\HW\Path_tracer\4\Fast_Pathtracer\src\TheNextWeek\hittable_list.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="W:\Google_drive\Sync\UU\1_2\ACG\HW\Path_tracer\4\Fast_Pathtracer\src\TheNextWeek\interval.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="W:\Google_drive\Sync\UU\1_2\ACG\HW\Path_tracer\4\Fast_Pathtracer\src\TheNextWeek\material.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="W:\Google_drive\Sync\UU\1_2\ACG\HW\Path_tracer\4\Fast_Pathtracer\src\TheNextWeek\perlin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="W:\Google_drive\Sync\UU\1_2\ACG\HW\Path_tracer\4\Fast_Pathtracer\src\TheNextWeek\quad.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="W:\Google_drive\Sync\UU\1_2\ACG\HW\Path_tracer\4\Fast_Pathtracer\src\TheNextWeek\ray.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="W:\Google_drive\Sync\UU\1_2\ACG\HW\Path_tracer\4\Fast_Pathtracer\src\TheNextWeek\rtw_stb_image.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="W:\Google_drive\Sync\UU\1_2\ACG\HW\Path_tracer\4\Fast_Pathtracer\src\TheNextWeek\rtweekend.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="W:\Google_drive\Sync\UU\1_2\ACG\HW\Path_tracer\4\Fast_Pathtracer\src\TheNextWeek\sphere.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="W:\Google_drive\Sync\UU\1_2\ACG\HW\Path_tracer\4\Fast_Pathtracer\src\TheNextWeek\texture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="W:\Google_drive\Sync\UU\1_2\ACG\HW\Path_tracer\4\Fast_Pathtracer\src\TheNextWeek\vec3.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="W:\Google_drive\Sync\UU\1_2\ACG\HW\Path_tracer\4\Fast_Pathtracer\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{9CBA3BCA-003B-3C37-B6E4-96C34D706EE8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{37EAB687-D792-3517-BE35-ACE99B233260}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
