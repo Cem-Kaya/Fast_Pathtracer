@@ -411,16 +411,19 @@ void mesh_scene( std::string model_name) {
 	hittable_list world;
 	world.add(mesh);
 
+	// BHN ON   :D 
+	world = hittable_list(make_shared<bvh_node>(world));
+
 	camera cam;
 
 	cam.aspect_ratio = 16.0 / 9.0;
-	cam.image_width = 256;
-	cam.samples_per_pixel = 25;
-	cam.max_depth = 10 ;
+	cam.image_width = 1080;
+	cam.samples_per_pixel = 100;
+	cam.max_depth = 50 ;
 	cam.background = color(0.70, 0.80, 1.00);
 
-	cam.vfov = 45; 
-	cam.lookfrom = point3(100,10,5);
+	cam.vfov = 30; 
+	cam.lookfrom = point3(5,10,100);
 	cam.lookat = point3(0, 0, 0);
 	cam.vup = vec3(0, 1, 0);
 

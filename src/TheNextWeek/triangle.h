@@ -119,8 +119,8 @@ inline shared_ptr<hittable_list> parse_obj(const std::string& filename, shared_p
             vertices.emplace_back(x, y, z);
 
             // Debug: Print the vertex and current size of vertices
-            std::cout << "Loaded vertex: (" << x << ", " << y << ", " << z << ")" << std::endl;
-            std::cout << "Vertices size: " << vertices.size() << std::endl;
+            //std::cout << "Loaded vertex: (" << x << ", " << y << ", " << z << ")" << std::endl;
+            //std::cout << "Vertices size: " << vertices.size() << std::endl;
         }
         else if (prefix == "f") {
             try {
@@ -137,8 +137,8 @@ inline shared_ptr<hittable_list> parse_obj(const std::string& filename, shared_p
                 int v2_idx = parse_index(vertex3);
 
                 // Debug: Print indices
-                std::cout << "Face indices: " << v0_idx << ", " << v1_idx << ", " << v2_idx << std::endl;
-                std::cout << "Vertices size: " << vertices.size() << std::endl;
+                //std::cout << "Face indices: " << v0_idx << ", " << v1_idx << ", " << v2_idx << std::endl;
+                //std::cout << "Vertices size: " << vertices.size() << std::endl;
 
                 // Boundary check
                 if (v0_idx < 0 || v0_idx >= vertices.size() ||

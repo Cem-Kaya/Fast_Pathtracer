@@ -1,16 +1,14 @@
 # ninja log v6
-17	868	7550424998466175	CMakeFiles/theNextWeek.dir/src/TheNextWeek/main.cc.obj	609b23af2f26db65
-868	1004	7550425006979002	theNextWeek.exe	c7125ce01c49c1bf
-13	105	7550530565065054	build.ninja	43ba21de2f35dc35
-11	1281	7550530656167314	CMakeFiles/theNextWeek.dir/src/TheNextWeek/main.cc.obj	609b23af2f26db65
-1281	1450	7550530668867922	theNextWeek.exe	c7125ce01c49c1bf
-2	833	7550555406881291	CMakeFiles/theNextWeek.dir/src/TheNextWeek/main.cc.obj	609b23af2f26db65
-834	998	7550555415200169	theNextWeek.exe	c7125ce01c49c1bf
-13	998	7550557161326045	CMakeFiles/theNextWeek.dir/src/TheNextWeek/main.cc.obj	609b23af2f26db65
-999	1129	7550557171182933	theNextWeek.exe	c7125ce01c49c1bf
-15	879	7550557357450506	CMakeFiles/theNextWeek.dir/src/TheNextWeek/main.cc.obj	609b23af2f26db65
-880	1001	7550557366102138	theNextWeek.exe	c7125ce01c49c1bf
-12	842	7550559646411207	CMakeFiles/theNextWeek.dir/src/TheNextWeek/main.cc.obj	609b23af2f26db65
-843	965	7550559654719657	theNextWeek.exe	c7125ce01c49c1bf
 14	1109	7550567403287879	CMakeFiles/theNextWeek.dir/src/TheNextWeek/main.cc.obj	609b23af2f26db65
 1110	1243	7550567414243156	theNextWeek.exe	c7125ce01c49c1bf
+13	105	7550928525162881	build.ninja	43ba21de2f35dc35
+13	1355	7550928674465356	CMakeFiles/theNextWeek.dir/src/TheNextWeek/main.cc.obj	609b23af2f26db65
+1356	1621	7550928687899948	theNextWeek.exe	c7125ce01c49c1bf
+17	911	7550929175139424	CMakeFiles/theNextWeek.dir/src/TheNextWeek/main.cc.obj	609b23af2f26db65
+912	1205	7550929184089414	theNextWeek.exe	c7125ce01c49c1bf
+23	1230	7550940697843164	CMakeFiles/theNextWeek.dir/src/TheNextWeek/main.cc.obj	609b23af2f26db65
+1230	1381	7550940709909017	theNextWeek.exe	c7125ce01c49c1bf
+16	1205	7551068759709876	CMakeFiles/theNextWeek.dir/src/TheNextWeek/main.cc.obj	609b23af2f26db65
+1206	1331	7551068771617326	theNextWeek.exe	c7125ce01c49c1bf
+13	832	7551069375230988	CMakeFiles/theNextWeek.dir/src/TheNextWeek/main.cc.obj	609b23af2f26db65
+832	950	7551069383424385	theNextWeek.exe	c7125ce01c49c1bf
