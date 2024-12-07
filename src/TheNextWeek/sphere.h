@@ -35,7 +35,11 @@ class sphere : public hittable {
         bbox = aabb(box1, box2);
     }
 
-    bool hit(const ray& r, interval ray_t, hit_record& rec) const override {
+    bool hit(const ray& r, interval ray_t, hit_record& rec, ray_state& state ) const override {
+        // Increment the intersection test count when we attempt to intersect a primitive
+        state.intersection_tests++;
+
+
         point3 current_center = center.at(r.time());
         vec3 oc = current_center - r.origin();
         auto a = r.direction().length_squared();

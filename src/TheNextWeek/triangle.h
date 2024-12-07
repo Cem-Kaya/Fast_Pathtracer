@@ -48,7 +48,11 @@ public:
 
     aabb bounding_box() const override { return bbox; }
 
-    bool hit(const ray& r, interval ray_t, hit_record& rec) const override {
+    bool hit(const ray& r, interval ray_t, hit_record& rec, ray_state& state) const override {
+
+        // Increment the intersection test count when we attempt to intersect a primitive
+        state.intersection_tests++;
+
         // Möller-Trumbore intersection algorithm
         const double EPSILON = 1e-8;
         vec3 edge1 = v1 - v0;

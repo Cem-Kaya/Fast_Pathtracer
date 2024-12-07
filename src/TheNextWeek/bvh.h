@@ -18,6 +18,25 @@
 #include <algorithm>
 
 
+struct pixel_efficiency_data {
+    color accumulated_color;
+    int total_traversal_steps;
+    int total_intersection_tests;
+
+    pixel_efficiency_data()
+        : accumulated_color(color(0, 0, 0)),
+        total_traversal_steps(0),
+        total_intersection_tests(0) {
+    }
+};
+
+
+
+
+
+
+
+
 class bvh_node : public hittable {
   public:
    
@@ -93,12 +112,17 @@ class bvh_node : public hittable {
     }
 
 
-    bool hit(const ray& r, interval ray_t, hit_record& rec) const override {
+    bool hit(const ray& r, interval ray_t, hit_record& rec, ray_state& state) const override {
+        // We are traversing a BVH node, increment the traversal step counter
+        state.traversal_steps++;
+
+
+
         if (!bbox.hit(r, ray_t))
             return false;
 
-        bool hit_left = left->hit(r, ray_t, rec);
-        bool hit_right = right->hit(r, interval(ray_t.min, hit_left ? rec.t : ray_t.max), rec);
+        bool hit_left = left->hit(r, ray_t, rec, state );
+        bool hit_right = right->hit(r, interval(ray_t.min, hit_left ? rec.t : ray_t.max), rec, state );
 
         return hit_left || hit_right;
     }

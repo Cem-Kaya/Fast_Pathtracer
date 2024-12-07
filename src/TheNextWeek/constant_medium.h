@@ -28,13 +28,13 @@ class constant_medium : public hittable {
         phase_function(make_shared<isotropic>(albedo))
     {}
 
-    bool hit(const ray& r, interval ray_t, hit_record& rec) const override {
+    bool hit(const ray& r, interval ray_t, hit_record& rec, ray_state& state) const override {
         hit_record rec1, rec2;
 
-        if (!boundary->hit(r, interval::universe, rec1))
+        if (!boundary->hit(r, interval::universe, rec1, state))
             return false;
 
-        if (!boundary->hit(r, interval(rec1.t+0.0001, infinity), rec2))
+        if (!boundary->hit(r, interval(rec1.t+0.0001, infinity), rec2, state ))
             return false;
 
         if (rec1.t < ray_t.min) rec1.t = ray_t.min;

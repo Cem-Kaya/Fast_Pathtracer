@@ -14,6 +14,13 @@
 #include "aabb.h"
 
 
+struct ray_state {
+    int traversal_steps;
+    int intersection_tests;
+    ray_state() : traversal_steps(0), intersection_tests(0) {}
+};
+
+
 class material;
 
 
@@ -41,7 +48,7 @@ class hittable {
   public:
     virtual ~hittable() = default;
 
-    virtual bool hit(const ray& r, interval ray_t, hit_record& rec) const = 0;
+    virtual bool hit(const ray& r, interval ray_t, hit_record& rec , ray_state& state ) const = 0;
 
     virtual aabb bounding_box() const = 0;
 };
@@ -55,12 +62,12 @@ class translate : public hittable {
         bbox = object->bounding_box() + offset;
     }
 
-    bool hit(const ray& r, interval ray_t, hit_record& rec) const override {
+    bool hit(const ray& r, interval ray_t, hit_record& rec, ray_state &state) const override {
         // Move the ray backwards by the offset
         ray offset_r(r.origin() - offset, r.direction(), r.time());
 
         // Determine whether an intersection exists along the offset ray (and if so, where)
-        if (!object->hit(offset_r, ray_t, rec))
+        if (!object->hit(offset_r, ray_t, rec , state))
             return false;
 
         // Move the intersection point forwards by the offset
@@ -112,7 +119,7 @@ class rotate_y : public hittable {
         bbox = aabb(min, max);
     }
 
-    bool hit(const ray& r, interval ray_t, hit_record& rec) const override {
+    bool hit(const ray& r, interval ray_t, hit_record& rec, ray_state& state) const override {
 
         // Transform the ray from world space to object space.
 
@@ -132,7 +139,7 @@ class rotate_y : public hittable {
 
         // Determine whether an intersection exists in object space (and if so, where).
 
-        if (!object->hit(rotated_r, ray_t, rec))
+        if (!object->hit(rotated_r, ray_t, rec, state))
             return false;
 
         // Transform the intersection from object space back to world space.

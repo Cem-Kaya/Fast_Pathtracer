@@ -3,7 +3,7 @@
 //==============================================================================================
 // Originally written in 2016 by Peter Shirley <ptrshrl@gmail.com>
 //
-// To the extent possible under law, the author(s) have dedicated all copyright and related and
+// To the extent possible under law, the author(s) have dedicated all copyright and related
 // neighboring rights to this software to the public domain worldwide. This software is
 // distributed without any warranty.
 //
@@ -13,107 +13,153 @@
 
 #include "hittable.h"
 #include "material.h"
+#include "bvh.h"
 
 #include <sstream> 
 #include <chrono>
 #include <thread>
 #include <fstream>
 #include <cstdlib>
+#include <ctime>
+
+
 
 class camera {
-  public:
-    double aspect_ratio      = 1.0;  // Ratio of image width over height
-    int    image_width       = 100;  // Rendered image width in pixel count
+public:
+    double aspect_ratio = 1.0;  // Ratio of image width over height
+    int    image_width = 100;  // Rendered image width in pixel count
     int    samples_per_pixel = 10;   // Count of random samples for each pixel
-    int    max_depth         = 10;   // Maximum number of ray bounces into scene
+    int    max_depth = 10;   // Maximum number of ray bounces into scene
     color  background;               // Scene background color
 
-    double vfov     = 90;              // Vertical view angle (field of view)
-    point3 lookfrom = point3(0,0,0);   // Point camera is looking from
-    point3 lookat   = point3(0,0,-1);  // Point camera is looking at
-    vec3   vup      = vec3(0,1,0);     // Camera-relative "up" direction
+    double vfov = 90;              // Vertical view angle (field of view)
+    point3 lookfrom = point3(0, 0, 0);   // Point camera is looking from
+    point3 lookat = point3(0, 0, -1);  // Point camera is looking at
+    vec3   vup = vec3(0, 1, 0);     // Camera-relative "up" direction
 
     double defocus_angle = 0;  // Variation angle of rays through each pixel
     double focus_dist = 10;    // Distance from camera lookfrom point to plane of perfect focus
 
-    void render(const hittable& world) {
-        initialize();
+    std::vector<pixel_efficiency_data> pixels;
 
-        // Get the current Unix timestamp for the filename
-        auto timestamp = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    void render(const hittable& world) {
+        // Get the current Unix timestamp for filenames
+        auto now = std::chrono::system_clock::now();
+        auto timestamp = std::chrono::system_clock::to_time_t(now);
+
         std::ostringstream oss;
-        oss << timestamp;
-        std::string filename = oss.str() + ".ppm";
-        // Open the output file
-        std::ofstream output_file(filename);
+        oss << timestamp; // Convert timestamp to string
+
+        // Setup filenames with timestamp
+        ppm_filename = oss.str() + ".ppm";
+        metrics_filename = "metrics_" + oss.str() + ".csv";
+
+        initialize_pixel_data(); // Allocate and initialize 'pixels'
+
+        // Open the PPM output file
+        std::ofstream output_file(ppm_filename);
         if (!output_file.is_open()) {
-            throw std::runtime_error("Failed to open output file: " + filename);
+            throw std::runtime_error("Failed to open output file: " + ppm_filename);
         }
 
         // Write PPM header
         output_file << "P3\n" << image_width << ' ' << image_height << "\n255\n";
 
-
-
-
-
-
         for (int j = 0; j < image_height; j++) {
             std::clog << "\rScanlines remaining: " << (image_height - j) << ' ' << std::flush;
             for (int i = 0; i < image_width; i++) {
-                color pixel_color(0,0,0);
-                for (int sample = 0; sample < samples_per_pixel; sample++) {
+                pixel_efficiency_data& p = pixels[j * image_width + i];
+
+                for (int s = 0; s < samples_per_pixel; s++) {
+                    ray_state state;
                     ray r = get_ray(i, j);
-                    pixel_color += ray_color(r, max_depth, world);
+                    color sample_color = ray_color(r, max_depth, world, state);
+
+                    // Accumulate color
+                    p.accumulated_color += sample_color;
+
+                    // Accumulate metrics
+                    p.total_traversal_steps += state.traversal_steps;
+                    p.total_intersection_tests += state.intersection_tests;
                 }
-                write_color(output_file, pixel_samples_scale * pixel_color);
             }
         }
 
+        // Write final image and metrics
+        finalize_output(output_file);
+    }
+
+private:
+    int    image_height;
+    double pixel_samples_scale;
+    point3 center;
+    point3 pixel00_loc;
+    vec3   pixel_delta_u;
+    vec3   pixel_delta_v;
+    vec3   u, v, w;
+    vec3   defocus_disk_u;
+    vec3   defocus_disk_v;
+
+    std::string ppm_filename;
+    std::string metrics_filename;
+
+    void initialize_pixel_data() {
+        image_height = int(image_width / aspect_ratio);
+        if (image_height < 1) image_height = 1;
+
+        pixel_samples_scale = 1.0 / samples_per_pixel;
+
+        pixels.resize(image_width * image_height);
+        for (auto& p : pixels) {
+            p = pixel_efficiency_data();
+        }
+
+        initialize(); // initialize camera geometry
+    }
+
+    void finalize_output(std::ofstream& output_file) {
+        // Optionally, open metrics file
+        std::ofstream metrics_file(metrics_filename);
+        metrics_file << "x,y,avg_traversal_steps,avg_intersection_tests,timestamp\n";
+
+        for (int j = 0; j < image_height; j++) {
+            for (int i = 0; i < image_width; i++) {
+                const pixel_efficiency_data& p = pixels[j * image_width + i];
+
+                // Compute the average color
+                color final_color = pixel_samples_scale * p.accumulated_color;
+                // Write final color in PPM
+                write_color(output_file, final_color);
+
+                // Compute average metrics per sample
+                double avg_traversal = (double)p.total_traversal_steps / samples_per_pixel;
+                double avg_intersect = (double)p.total_intersection_tests / samples_per_pixel;
+
+                // Append timestamp to metrics as well
+                metrics_file << i << "," << j << "," << avg_traversal << "," << avg_intersect << "\n";
+            }
+        }
 
         output_file.close();
-        std::clog << "\nImage written to file: " << filename << std::endl;
+        metrics_file.close();
 
-        std::clog << "\rDone.                 \n";
-        std::this_thread::sleep_for(std::chrono::milliseconds(500)); // Sleep for 500ms
+        std::clog << "\nRender complete. Images and metrics written.\n";
 
-
-        // Generate the filenames
-        std::string ppm_filename = filename;  // Already generated earlier
-        std::string png_filename = filename.substr(0, filename.find_last_of('.')) + ".png";
-
-        // Shell command to convert PPM to PNG using ImageMagick
+        // Convert PPM to PNG
+        std::string png_filename = ppm_filename.substr(0, ppm_filename.find_last_of('.')) + ".png";
         std::string convert_command = "magick convert " + ppm_filename + " " + png_filename;
-        std::this_thread::sleep_for(std::chrono::milliseconds(500)); // Sleep for 500ms
-
-        // Shell command to open the PNG file
-        std::string open_command = "start " + png_filename;  // On Windows
-        // std::string open_command = "xdg-open " + png_filename; // For Linux
-        // std::string open_command = "open " + png_filename;     // For macOS
-
-        // Execute the commands
         int convert_status = system(convert_command.c_str());
         if (convert_status != 0) {
             std::cerr << "Error: Failed to convert PPM to PNG." << std::endl;
         }
 
+        // Open the PNG file (Windows)
+        std::string open_command = "start " + png_filename;
         int open_status = system(open_command.c_str());
         if (open_status != 0) {
             std::cerr << "Error: Failed to open the PNG file." << std::endl;
         }
-
     }
-
-  private:
-    int    image_height;         // Rendered image height
-    double pixel_samples_scale;  // Color scale factor for a sum of pixel samples
-    point3 center;               // Camera center
-    point3 pixel00_loc;          // Location of pixel 0, 0
-    vec3   pixel_delta_u;        // Offset to pixel to the right
-    vec3   pixel_delta_v;        // Offset to pixel below
-    vec3   u, v, w;              // Camera frame basis vectors
-    vec3   defocus_disk_u;       // Defocus disk horizontal radius
-    vec3   defocus_disk_v;       // Defocus disk vertical radius
 
     void initialize() {
         image_height = int(image_width / aspect_ratio);
@@ -125,9 +171,9 @@ class camera {
 
         // Determine viewport dimensions.
         auto theta = degrees_to_radians(vfov);
-        auto h = std::tan(theta/2);
+        auto h = std::tan(theta / 2);
         auto viewport_height = 2 * h * focus_dist;
-        auto viewport_width = viewport_height * (double(image_width)/image_height);
+        auto viewport_width = viewport_height * (double(image_width) / image_height);
 
         // Calculate the u,v,w unit basis vectors for the camera coordinate frame.
         w = unit_vector(lookfrom - lookat);
@@ -142,8 +188,8 @@ class camera {
         pixel_delta_u = viewport_u / image_width;
         pixel_delta_v = viewport_v / image_height;
 
-        // Calculate the location of the upper left pixel.
-        auto viewport_upper_left = center - (focus_dist * w) - viewport_u/2 - viewport_v/2;
+        // Calculate the location of the upper-left pixel.
+        auto viewport_upper_left = center - (focus_dist * w) - viewport_u / 2 - viewport_v / 2;
         pixel00_loc = viewport_upper_left + 0.5 * (pixel_delta_u + pixel_delta_v);
 
         // Calculate the camera defocus disk basis vectors.
@@ -158,8 +204,8 @@ class camera {
 
         auto offset = sample_square();
         auto pixel_sample = pixel00_loc
-                          + ((i + offset.x()) * pixel_delta_u)
-                          + ((j + offset.y()) * pixel_delta_v);
+            + ((i + offset.x()) * pixel_delta_u)
+            + ((j + offset.y()) * pixel_delta_v);
 
         auto ray_origin = (defocus_angle <= 0) ? center : defocus_disk_sample();
         auto ray_direction = pixel_sample - ray_origin;
@@ -173,26 +219,21 @@ class camera {
         return vec3(random_double() - 0.5, random_double() - 0.5, 0);
     }
 
-    vec3 sample_disk(double radius) const {
-        // Returns a random point in the unit (radius 0.5) disk centered at the origin.
-        return radius * random_in_unit_disk();
-    }
-
     point3 defocus_disk_sample() const {
         // Returns a random point in the camera defocus disk.
         auto p = random_in_unit_disk();
         return center + (p[0] * defocus_disk_u) + (p[1] * defocus_disk_v);
     }
 
-    color ray_color(const ray& r, int depth, const hittable& world) const {
+    color ray_color(const ray& r, int depth, const hittable& world, ray_state& state) const {
         // If we've exceeded the ray bounce limit, no more light is gathered.
         if (depth <= 0)
-            return color(0,0,0);
+            return color(0, 0, 0);
 
         hit_record rec;
 
-        // If the ray hits nothing, return the background color.
-        if (!world.hit(r, interval(0.001, infinity), rec))
+        // Pass the state down into the world hit
+        if (!world.hit(r, interval(0.001, infinity), rec, state))
             return background;
 
         ray scattered;
@@ -202,11 +243,11 @@ class camera {
         if (!rec.mat->scatter(r, rec, attenuation, scattered))
             return color_from_emission;
 
-        color color_from_scatter = attenuation * ray_color(scattered, depth-1, world);
+        color color_from_scatter = attenuation * ray_color(scattered, depth - 1, world, state);
 
         return color_from_emission + color_from_scatter;
     }
-};
 
+};
 
 #endif

@@ -493,7 +493,8 @@ int main() {
 		case 8:  cornell_smoke();             break;
 		case 9:  final_scene(800, 10000, 40); break;
 		case 10: mesh_scene("../../../mesh/model_to_big.obj");    break;
-		case 11: d20_scene();                 break;
+		case 11: mesh_scene("../../../mesh/model9.obj");    break;
+		case 20: d20_scene();                 break;
 		default: final_scene(400,   250,  4); break;
 	}
 }
