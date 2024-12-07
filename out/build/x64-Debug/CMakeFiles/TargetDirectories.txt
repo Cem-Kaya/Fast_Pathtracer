@@ -1,3 +1,0 @@
-W:/Google_drive/Sync/UU/1_2/ACG/HW/Path_tracer/4/raytracing.github.io/out/build/x64-Debug/CMakeFiles/theNextWeek.dir
-W:/Google_drive/Sync/UU/1_2/ACG/HW/Path_tracer/4/raytracing.github.io/out/build/x64-Debug/CMakeFiles/edit_cache.dir
-W:/Google_drive/Sync/UU/1_2/ACG/HW/Path_tracer/4/raytracing.github.io/out/build/x64-Debug/CMakeFiles/rebuild_cache.dir

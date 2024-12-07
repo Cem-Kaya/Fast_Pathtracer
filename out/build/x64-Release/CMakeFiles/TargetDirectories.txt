@@ -1,3 +1,0 @@
-W:/Google_drive/Sync/UU/1_2/ACG/HW/Fast_Pathtracer/out/build/x64-Release/CMakeFiles/theNextWeek.dir
-W:/Google_drive/Sync/UU/1_2/ACG/HW/Fast_Pathtracer/out/build/x64-Release/CMakeFiles/edit_cache.dir
-W:/Google_drive/Sync/UU/1_2/ACG/HW/Fast_Pathtracer/out/build/x64-Release/CMakeFiles/rebuild_cache.dir
