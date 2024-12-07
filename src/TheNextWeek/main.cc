@@ -442,7 +442,7 @@ void d20_scene() {
 
 	// Load D20 die
 	auto d20_material = make_shared<lambertian>(color(0.8, 0.3, 0.3)); // Red material
-	auto d20_die = parse_obj("d20.obj", d20_material);
+	auto d20_die = parse_obj("../../../mesh/d20.obj", d20_material);
 	world.add(d20_die);
 
 	// Area light: a quad above the die
@@ -492,7 +492,7 @@ int main() {
 		case 7:  cornell_box();               break;
 		case 8:  cornell_smoke();             break;
 		case 9:  final_scene(800, 10000, 40); break;
-		case 10: mesh_scene("model_to_big.obj");    break;
+		case 10: mesh_scene("../../../mesh/model_to_big.obj");    break;
 		case 11: d20_scene();                 break;
 		default: final_scene(400,   250,  4); break;
 	}
