@@ -411,8 +411,14 @@ void mesh_scene( std::string model_name) {
 	hittable_list world;
 	world.add(mesh);
 
-	// BHN ON   :D 
+	// BVH ON   :D 	
+	auto start_time = std::chrono::high_resolution_clock::now(); // Start the timer
 	world = hittable_list(make_shared<bvh_node>(world));
+	auto end_time = std::chrono::high_resolution_clock::now(); // End the timer
+	auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
+	std::cout << "BVH construction time: " << elapsed_time << " ms" << std::endl;
+
+	//////////////////////////////////
 
 	camera cam;
 
@@ -460,8 +466,15 @@ void d20_scene() {
 	world.add(make_shared<sphere>(point3(2, 6, -2), 1, sphere_light_material)); // Visible light sphere
 
 
-	// BHN ON   :D 
+	// BVH ON   :D 
+	auto start_time = std::chrono::high_resolution_clock::now(); // Start the timer
 	world = hittable_list(make_shared<bvh_node>(world));
+	auto end_time = std::chrono::high_resolution_clock::now(); // End the timer
+	auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
+	std::cout << "BVH construction time: " << elapsed_time << " ms" << std::endl;
+	//////////////////////////////////////
+
+
 
 	// Camera setup
 	camera cam;
@@ -481,8 +494,113 @@ void d20_scene() {
 }
 
 
+void fancy_mesh_scene(const std::string& model_name) {
+	// Load the mesh and create materials for the two copies
+	auto red_mesh_mat = make_shared<lambertian>(color(0.8, 0.3, 0.3)); // Red mesh
+	auto green_mesh_mat = make_shared<lambertian>(color(0.2, 0.8, 0.2)); // Green mesh
+	auto red_mesh = parse_obj(model_name, red_mesh_mat);
+	auto green_mesh = parse_obj(model_name, green_mesh_mat);
+
+	hittable_list world;
+
+	// Ground: a large checker-textured quad
+	auto checker = make_shared<checker_texture>(0.5, color(0.2, 0.2, 0.2), color(0.9, 0.9, 0.9));
+	auto ground_material = make_shared<lambertian>(checker);
+	world.add(make_shared<quad>(
+		point3(-1000, 0, -1000),
+		vec3(2000, 0, 0),
+		vec3(0, 0, 2000),
+		ground_material
+	));
+
+	// First copy of the mesh (red), centered and raised
+	auto mesh_center_correction = vec3(-(14.41 + 27.07) / 2.0, -0.7, -(8.02 + 7.46) / 2.0);
+	auto first_mesh = make_shared<translate>(red_mesh, vec3(10, 0, 0) + mesh_center_correction);
+	world.add(first_mesh);
+
+	// Second copy of the mesh (green), shifted right relative to the first
+	auto second_mesh = make_shared<translate>(green_mesh, vec3(30, 0, 0) + mesh_center_correction);
+	world.add(second_mesh);
+
+	// Mirror behind the scene: a large, perfectly reflective quad
+	auto mirror_material = make_shared<metal>(color(0.95, 0.95, 0.95), 0.0);
+	world.add(make_shared<quad>(
+		point3(-1000, -1, -30),
+		vec3(2000, 0, 0),
+		vec3(0, 2000, 0),
+		mirror_material
+	));
+
+	// Back wall (white)
+	auto back_wall_material = make_shared<lambertian>(color(0.9, 0.9, 0.9));
+	world.add(make_shared<quad>(
+		point3(-1000, 0, -100),
+		vec3(2000, 0, 0),
+		vec3(0, 2000, 0),
+		back_wall_material
+	));
+
+	// Rainbow colored lights, shifted right for better alignment
+	double light_y = 15.0; // Height of the lights
+	double light_z = 15.0; // Z-axis position of the lights
+	double quad_size = 3.0;
+
+	auto red_light = make_shared<diffuse_light>(color(1, 0, 0));
+	auto orange_light = make_shared<diffuse_light>(color(1, 0.5, 0));
+	auto yellow_light = make_shared<diffuse_light>(color(1, 1, 0));
+	auto green_light = make_shared<diffuse_light>(color(0, 1, 0));
+	auto blue_light = make_shared<diffuse_light>(color(0, 0, 1));
+	auto indigo_light = make_shared<diffuse_light>(color(0.29, 0, 0.51));
+	auto violet_light = make_shared<diffuse_light>(color(0.56, 0, 1));
+
+	// Position rainbow lights shifted right
+	world.add(make_shared<quad>(point3(0, light_y, light_z), vec3(quad_size, 0, 0), vec3(0, quad_size, 0), red_light));
+	world.add(make_shared<quad>(point3(5, light_y, light_z), vec3(quad_size, 0, 0), vec3(0, quad_size, 0), orange_light));
+	world.add(make_shared<quad>(point3(10, light_y, light_z), vec3(quad_size, 0, 0), vec3(0, quad_size, 0), yellow_light));
+	world.add(make_shared<quad>(point3(15, light_y, light_z), vec3(quad_size, 0, 0), vec3(0, quad_size, 0), green_light));
+	world.add(make_shared<quad>(point3(20, light_y, light_z), vec3(quad_size, 0, 0), vec3(0, quad_size, 0), blue_light));
+	world.add(make_shared<quad>(point3(25, light_y, light_z), vec3(quad_size, 0, 0), vec3(0, quad_size, 0), indigo_light));
+	world.add(make_shared<quad>(point3(30, light_y, light_z), vec3(quad_size, 0, 0), vec3(0, quad_size, 0), violet_light));
+
+	// Glass spheres
+	auto glass = make_shared<dielectric>(1.5);
+	world.add(make_shared<sphere>(point3(5, 1, -5), 1.0, glass));
+	world.add(make_shared<sphere>(point3(10, 1, 0), 1.0, glass));
+	world.add(make_shared<sphere>(point3(25, 1, 0), 1.0, glass));
+	world.add(make_shared<sphere>(point3(30, 1, 5), 1.0, glass));
+
+	// Glass sphere close to the camera
+	world.add(make_shared<sphere>(point3(18, 2, 20), 2.0, glass));
+
+	// Construct BVH
+	auto start_time = std::chrono::high_resolution_clock::now();
+	world = hittable_list(make_shared<bvh_node>(world));
+	auto end_time = std::chrono::high_resolution_clock::now();
+	auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
+	std::cout << "BVH construction time: " << elapsed_time << " ms" << std::endl;
+
+	// Camera setup
+	camera cam;
+	cam.aspect_ratio = 16.0 / 9.0;
+	cam.image_width = 256;
+	cam.samples_per_pixel = 25;
+	cam.max_depth = 20;
+	cam.background = color(0.70, 0.80, 1.00);
+
+	cam.vfov = 30;
+	cam.lookfrom = point3(20, 2, 30);
+	cam.lookat = point3(20, 5, 0);
+	cam.vup = vec3(0, 1, 0);
+
+	cam.defocus_angle = 0;
+
+	// Render the scene
+	cam.render(world);
+}
+
+
 int main() {
-	switch (11) {
+	switch (12) {
 		case 1:  bouncing_spheres();          break;
 		case 2:  checkered_spheres();         break;
 		case 3:  earth();                     break;
@@ -493,7 +611,8 @@ int main() {
 		case 8:  cornell_smoke();             break;
 		case 9:  final_scene(800, 10000, 40); break;
 		case 10: mesh_scene("../../../mesh/model_to_big.obj");    break;
-		case 11: mesh_scene("../../../mesh/model9.obj");    break;
+		case 11: mesh_scene("../../../mesh/model9.obj"); break;
+		case 12: fancy_mesh_scene("../../../mesh/model9.obj");	 ; break;
 		case 20: d20_scene();                 break;
 		default: final_scene(400,   250,  4); break;
 	}

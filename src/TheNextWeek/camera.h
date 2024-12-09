@@ -22,6 +22,9 @@
 #include <cstdlib>
 #include <ctime>
 
+#include <thread>
+#include <future>
+
 
 
 class camera {
@@ -42,31 +45,54 @@ public:
 
     std::vector<pixel_efficiency_data> pixels;
 
-    void render(const hittable& world) {
-        // Get the current Unix timestamp for filenames
+    void camera::render(const hittable& world) {
         auto now = std::chrono::system_clock::now();
         auto timestamp = std::chrono::system_clock::to_time_t(now);
-
         std::ostringstream oss;
-        oss << timestamp; // Convert timestamp to string
+        oss << timestamp;
 
-        // Setup filenames with timestamp
         ppm_filename = oss.str() + ".ppm";
         metrics_filename = "metrics_" + oss.str() + ".csv";
 
-        initialize_pixel_data(); // Allocate and initialize 'pixels'
+        initialize_pixel_data();
 
-        // Open the PPM output file
         std::ofstream output_file(ppm_filename);
         if (!output_file.is_open()) {
             throw std::runtime_error("Failed to open output file: " + ppm_filename);
         }
 
-        // Write PPM header
         output_file << "P3\n" << image_width << ' ' << image_height << "\n255\n";
 
-        for (int j = 0; j < image_height; j++) {
-            std::clog << "\rScanlines remaining: " << (image_height - j) << ' ' << std::flush;
+        // Number of threads to use
+        int num_threads = std::thread::hardware_concurrency();
+        if (num_threads < 1) num_threads = 4; // Fallback to 4 threads if detection fails
+
+        // Divide the work by rows
+        std::vector<std::future<void>> futures;
+        int rows_per_thread = image_height / num_threads;
+
+        // Shared scanline counter
+        int remaining_scanlines = image_height;
+
+        for (int t = 0; t < num_threads; t++) {
+            int start_row = t * rows_per_thread;
+            int end_row = (t == num_threads - 1) ? image_height : start_row + rows_per_thread;
+
+            // Schedule each chunk to run asynchronously
+            futures.push_back(std::async(std::launch::async, &camera::render_chunk, this, std::ref(world), start_row, end_row, std::ref(remaining_scanlines)));
+        }
+
+        // Wait for all threads to finish
+        for (auto& f : futures) {
+            f.get();
+        }
+
+        finalize_output(output_file);
+    }
+
+    void camera::render_chunk(const hittable& world, int start_row, int end_row, int& remaining_scanlines) {
+        static std::mutex print_mutex; // Mutex to protect the print operation
+        for (int j = start_row; j < end_row; j++) {
             for (int i = 0; i < image_width; i++) {
                 pixel_efficiency_data& p = pixels[j * image_width + i];
 
@@ -83,12 +109,18 @@ public:
                     p.total_intersection_tests += state.intersection_tests;
                 }
             }
-        }
 
-        // Write final image and metrics
-        finalize_output(output_file);
+            // Decrement the shared remaining scanlines counter
+            {
+                std::lock_guard<std::mutex> lock(print_mutex);
+                remaining_scanlines--;
+                std::clog << "\rScanlines remaining: " << remaining_scanlines << ' ' << std::flush;
+            }
+        }
     }
 
+
+  
 private:
     int    image_height;
     double pixel_samples_scale;

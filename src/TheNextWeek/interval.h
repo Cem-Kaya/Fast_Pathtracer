@@ -46,8 +46,15 @@ class interval {
         auto padding = delta/2;
         return interval(min - padding, max + padding);
     }
+   
+    double midpoint() const {
+        return 0.5 * (min + max);
+    }
+   
 
     static const interval empty, universe;
+      
+
 };
 
 const interval interval::empty    = interval(+infinity, -infinity);
