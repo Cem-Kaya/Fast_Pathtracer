@@ -574,7 +574,11 @@ void fancy_mesh_scene(const std::string& model_name) {
 
 	// Construct BVH
 	auto start_time = std::chrono::high_resolution_clock::now();
-	world = hittable_list(make_shared<bvh_node>(world));
+	//world = hittable_list(make_shared<bvh_node>(world));
+	//world = hittable_list(make_shared<octree_node>(world));
+	world = hittable_list(make_shared<grid_acceleration>(world));
+
+
 	auto end_time = std::chrono::high_resolution_clock::now();
 	auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
 	std::cout << "BVH construction time: " << elapsed_time << " ms" << std::endl;
