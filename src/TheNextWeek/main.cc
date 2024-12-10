@@ -432,6 +432,34 @@ void mesh_scene( std::string model_name) {
 }
 
 
+void mesh_scene_with_grids(std::string model_name) {
+	auto mat = make_shared<lambertian>(color(0.8, 0.3, 0.3));
+	auto mesh = parse_obj(model_name, mat);
+
+	hittable_list world;
+	world.add(mesh);
+
+	// Grid Acceleration
+	world = hittable_list(make_shared<grid_acceleration>(world, 50));
+
+	camera cam;
+
+	cam.aspect_ratio = 16.0 / 9.0;
+	cam.image_width = 1080;
+	cam.samples_per_pixel = 100;
+	cam.max_depth = 50;
+	cam.background = color(0.70, 0.80, 1.00);
+
+	cam.vfov = 30;
+	cam.lookfrom = point3(5, 10, 100);
+	cam.lookat = point3(0, 0, 0);
+	cam.vup = vec3(0, 1, 0);
+
+	cam.defocus_angle = 0;
+	cam.render(world);
+}
+
+
 void d20_scene() {
 	hittable_list world;
 
@@ -482,7 +510,7 @@ void d20_scene() {
 
 
 int main() {
-	switch (11) {
+	switch (12) {
 		case 1:  bouncing_spheres();          break;
 		case 2:  checkered_spheres();         break;
 		case 3:  earth();                     break;
@@ -494,6 +522,7 @@ int main() {
 		case 9:  final_scene(800, 10000, 40); break;
 		case 10: mesh_scene("../../../mesh/model_to_big.obj");    break;
 		case 11: mesh_scene("../../../mesh/model9.obj");    break;
+		case 12: mesh_scene_with_grids("../../../mesh/model9.obj");    break;
 		case 20: d20_scene();                 break;
 		default: final_scene(400,   250,  4); break;
 	}

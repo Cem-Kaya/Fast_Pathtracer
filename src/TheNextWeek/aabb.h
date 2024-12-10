@@ -81,6 +81,18 @@ class aabb {
             return y.size() > z.size() ? 1 : 2;
     }
 
+    point3 min() const {
+        return point3(x.min, y.min, z.min);
+    }
+
+    point3 max() const {
+        return point3(x.max, y.max, z.max);
+    }
+
+    vec3 size() const {
+        return vec3(x.max - x.min, y.max - y.min, z.max - z.min);
+    }
+
     static const aabb empty, universe;
 
   private:
@@ -94,6 +106,11 @@ class aabb {
         if (z.size() < delta) z = z.expand(delta);
     }
 };
+
+// Operator overloads for point3 and vec3 operations
+inline vec3 operator/(const vec3& v, const vec3& scalar) {
+    return vec3(v.x() / scalar.x(), v.y() / scalar.y(), v.z() / scalar.z());
+}
 
 const aabb aabb::empty    = aabb(interval::empty,    interval::empty,    interval::empty);
 const aabb aabb::universe = aabb(interval::universe, interval::universe, interval::universe);
