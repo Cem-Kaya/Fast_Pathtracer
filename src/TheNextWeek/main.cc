@@ -440,7 +440,7 @@ void mesh_scene_with_grids(std::string model_name) {
 	world.add(mesh);
 
 	// Grid Acceleration
-	world = hittable_list(make_shared<grid_acceleration>(world, 50));
+	world = hittable_list(make_shared<grid_acceleration>(world, 2));
 
 	camera cam;
 
