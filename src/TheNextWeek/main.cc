@@ -508,9 +508,52 @@ void d20_scene() {
 	cam.render(world);
 }
 
+void shadow_scene(std::string model_name) {
+	auto mat = make_shared<lambertian>(color(0.3, 0.8, 0.3));
+	auto mesh = parse_obj(model_name, mat);
+
+	auto mesh_correction = vec3(-3, 2, 4); // Adjust to align mesh with the plane
+
+	hittable_list world;
+	world.add(make_shared<translate>(mesh, mesh_correction));
+
+	auto red_material = make_shared<lambertian>(color(0.8, 0.2, 0.2)); // Red material
+	world.add(make_shared<sphere>(point3(0, 1, 0), 1.0, red_material)); // Red sphere
+
+	auto glass_material = make_shared<dielectric>(1.5); // Glass material
+	world.add(make_shared<sphere>(point3(2, 1, -1), 1.0, glass_material)); // Glass sphere
+
+	auto light_color1 = color(10, 10, 10); // Bright white light
+	auto light_color2 = color(10, 5, 2);  // Warm orange light
+
+	world.add(make_shared<quad>(point3(-4, 5, 0), vec3(3, 0, 0), vec3(0, 3, 0), make_shared<diffuse_light>(light_color1)));
+	world.add(make_shared<sphere>(point3(3, 4, 3), 0.5, make_shared<diffuse_light>(light_color2)));
+
+	// Use BVH for acceleration
+	world = hittable_list(make_shared<bvh_node>(world));
+	
+	// Camera setup
+	camera cam;
+	cam.aspect_ratio = 16.0 / 9.0;
+	cam.image_width = 400;
+	cam.samples_per_pixel = 50;
+	cam.max_depth = 20;
+	cam.background = color(0, 0, 0);
+
+	cam.vfov = 40;
+	cam.lookfrom = point3(5, 3, 8);
+	cam.lookat = point3(0, 1, 0);
+	cam.vup = vec3(0, 1, 0);
+
+	cam.defocus_angle = 0.1;
+	cam.focus_dist = 10.0;
+
+	cam.render(world);
+}
+
 
 int main() {
-	switch (12) {
+	switch (13) {
 		case 1:  bouncing_spheres();          break;
 		case 2:  checkered_spheres();         break;
 		case 3:  earth();                     break;
@@ -523,6 +566,7 @@ int main() {
 		case 10: mesh_scene("../../../mesh/model_to_big.obj");    break;
 		case 11: mesh_scene("../../../mesh/model9.obj");    break;
 		case 12: mesh_scene_with_grids("../../../mesh/model9.obj");    break;
+		case 13: shadow_scene("../../../mesh/separated_mesh_5.obj"); break;
 		case 20: d20_scene();                 break;
 		default: final_scene(400,   250,  4); break;
 	}
