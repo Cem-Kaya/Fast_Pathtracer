@@ -57,17 +57,17 @@ public:
         }
 
         // **Call the main constructor**
-        *this = bvh_node(objects, 0, objects.size(), "sah"); // "mid"  or "sah" split option
+        *this = bvh_node(objects, 0, objects.size(), "mid"); // "mid"  or "sah" split option
     }
 
-
+    // actual constructers
     bvh_node(std::vector<shared_ptr<hittable>>& objects, size_t start, size_t end, const std::string& split_type) {
         // Build the bounding box of the span of source objects.
         bbox = aabb::empty;
-        for (size_t object_index = start; object_index < end; object_index++)
+        for (int object_index = start; object_index < end; object_index++)
             bbox = aabb(bbox, objects[object_index]->bounding_box());
 
-        size_t object_span = end - start;
+        int object_span = end - start;
 
         if (object_span == 1) {
             left = right = objects[start];
@@ -94,7 +94,9 @@ public:
                 // **SAH SPLIT**
                 int best_axis = -1;
                 float best_cost = std::numeric_limits<float>::infinity();
-                size_t best_split_index = start;
+                
+                //best split 
+                int best_split_index = start;
 
                 for (int axis = 0; axis < 3; axis++) {
                     std::sort(objects.begin() + start, objects.begin() + end,
@@ -106,18 +108,18 @@ public:
                     std::vector<aabb> right_bboxes(object_span);
 
                     aabb left_bbox = aabb::empty;
-                    for (size_t i = start; i < end; ++i) {
+                    for (int i = start; i < end; ++i) {
                         left_bbox = aabb(left_bbox, objects[i]->bounding_box());
                         left_bboxes[i - start] = left_bbox;
                     }
 
                     aabb right_bbox = aabb::empty;
-                    for (size_t i = end - 1; i >= start; --i) {
+                    for (int i = end - 1; i >= start; --i) {
                         right_bbox = aabb(right_bbox, objects[i]->bounding_box());
                         right_bboxes[i - start] = right_bbox;
                     }
 
-                    for (size_t i = start + 1; i < end; ++i) {
+                    for (int i = start + 1; i < end; ++i) {
                         int num_left = i - start;
                         int num_right = end - i;
 
@@ -304,9 +306,9 @@ private:
     vec3 compute_child_bbox_max(int index, const aabb& parent_bbox) const {
         vec3 mx = vec3(parent_bbox.x.min, parent_bbox.y.min, parent_bbox.z.min); // Initialize with min
 
-        // Adjust max depending on the octant index
+        // Adjust max depending on the oct index
         if (index & 1) mx[0] = parent_bbox.x.max;  // Right half
-        if (index & 2) mx[1] = parent_bbox.y.max;  // Upper half
+        if (index & 2) mx[1] = parent_bbox.y.max;  // Upp half
         if (index & 4) mx[2] = parent_bbox.z.max;  // Front half 
         return mx;
     }
@@ -330,7 +332,7 @@ public:
             }
         }
 
-        // Compute the overall bounding box
+        // Compute the big bounding box
         bbox = aabb::empty;
         for (const auto& object : objects) {
             bbox = aabb(bbox, object->bounding_box());
@@ -347,7 +349,6 @@ public:
         for (const auto& object : objects) {
             aabb obj_bbox = object->bounding_box();
 
-            // Corrected: Using x.min, x.max, etc. to access interval bounds
             vec3 min_corner = vec3(
                 (obj_bbox.x.min - bbox.x.min) / cell_size.x(),
                 (obj_bbox.y.min - bbox.y.min) / cell_size.y(),
