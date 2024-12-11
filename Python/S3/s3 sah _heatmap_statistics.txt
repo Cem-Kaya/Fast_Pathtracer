@@ -1,0 +1,10 @@
+avg_traversal_steps Statistics:
+  mean: 155.62982177734375
+  min: 3.0
+  max: 2740.909912109375
+
+avg_intersection_tests Statistics:
+  mean: 18.84140968322754
+  min: 0.0
+  max: 367.125
+

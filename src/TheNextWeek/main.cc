@@ -413,7 +413,10 @@ void mesh_scene( std::string model_name) {
 
 	// BVH ON   :D 	
 	auto start_time = std::chrono::high_resolution_clock::now(); // Start the timer
-	world = hittable_list(make_shared<bvh_node>(world));
+	//world = hittable_list(make_shared<bvh_node>(world));
+	//world = hittable_list(make_shared<octree_node>(world));
+	world = hittable_list(make_shared<grid_acceleration>(world));
+
 	auto end_time = std::chrono::high_resolution_clock::now(); // End the timer
 	auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
 	std::cout << "BVH construction time: " << elapsed_time << " ms" << std::endl;
@@ -571,7 +574,64 @@ void fancy_mesh_scene(const std::string& model_name) {
 
 	// Glass sphere close to the camera
 	world.add(make_shared<sphere>(point3(18, 2, 20), 2.0, glass));
+	// fancy mesh scene ! ! !
+	// Construct BVH
+	auto start_time = std::chrono::high_resolution_clock::now();
+	world = hittable_list(make_shared<bvh_node>(world));
+	//world = hittable_list(make_shared<octree_node>(world));
+	//world = hittable_list(make_shared<grid_acceleration>(world));
 
+
+	auto end_time = std::chrono::high_resolution_clock::now();
+	auto elapsed_time = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time).count();
+	std::cout << "Accalaration structure construction time: " << elapsed_time << " micro seconds " << std::endl;
+
+	// Camera setup
+	camera cam;
+	cam.aspect_ratio = 16.0 / 9.0;
+	cam.image_width = 640;
+	cam.samples_per_pixel = 64;
+	cam.max_depth = 20;
+	cam.background = color(0.70, 0.80, 1.00);
+	// c1 
+	cam.vfov = 30;
+	cam.lookfrom = point3(20, 2, 30);
+	cam.lookat = point3(20, 5, 0);
+	cam.vup = vec3(0, 1, 0);
+	//c2 45 degree to the right 
+	cam.lookfrom = point3(20, 2, 30);
+	cam.lookat = point3(41.21, 5, 8.79); // cos 
+	cam.vup = vec3(0, 1, 0);
+
+
+	cam.defocus_angle = 0;
+
+	// Render the scene
+	cam.render(world);
+}
+
+
+void shadow_scene(std::string model_name) {
+	auto mat = make_shared<lambertian>(color(0.3, 0.8, 0.3));
+	auto mesh = parse_obj(model_name, mat);
+	auto mesh_correction = vec3(-10.091, -10.732, -0.106); // Centering the mesh
+	hittable_list world;
+	world.add(make_shared<translate>(mesh, mesh_correction));
+
+
+	world.add(make_shared<quad>(
+		point3(-1000, -0.5, -1000),
+		vec3(2000, 0, 0),
+		vec3(0, 0, 2000),
+		make_shared<lambertian>(color(0.8, 0.8, 0.8))
+	));
+
+	// Add more light sources
+	auto bright_light = make_shared<diffuse_light>(color(1, 0.75, 0.50)); //  intensity
+	world.add(make_shared<quad>(point3(-4, 5, 0), vec3(3, 0, 0), vec3(0, 3, 0), bright_light));
+	auto bright_light2 = make_shared<diffuse_light>(color(0.5, 0.75, 1)); //  intensity
+	world.add(make_shared<sphere>(point3(3, 10, 3), 1.0, bright_light2)); // Overhead light
+	// dark scene 
 	// Construct BVH
 	auto start_time = std::chrono::high_resolution_clock::now();
 	//world = hittable_list(make_shared<bvh_node>(world));
@@ -580,23 +640,82 @@ void fancy_mesh_scene(const std::string& model_name) {
 
 
 	auto end_time = std::chrono::high_resolution_clock::now();
-	auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
-	std::cout << "BVH construction time: " << elapsed_time << " ms" << std::endl;
+	auto elapsed_time = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time).count();
+	std::cout << "Accalaration structure construction time: " << elapsed_time << " micro seconds " << std::endl;
+
+
+
+	// Camera setup for better visibility
+	camera cam;
+	cam.aspect_ratio = 16.0 / 9.0;
+	cam.image_width = 640;
+	cam.samples_per_pixel = 64; // Improved quality
+	cam.max_depth = 20;
+
+
+
+	cam.background = color(0.01, 0.01, 0.02); // 
+	cam.vfov = 22.5;
+	cam.lookfrom = point3(10, 25, 25); // Adjusted to focus on the mesh
+	cam.lookat = point3(0, 0, 0); // Looking at the centroid
+	cam.vup = vec3(0, 1, 0);
+	cam.defocus_angle = 0.1;
+	cam.focus_dist = 20.0;
+
+	cam.render(world);
+}
+
+
+
+void Trex(const std::string& model_name) {
+	// Load the mesh and assign it a basic material
+	auto mesh_material = make_shared<lambertian>(color(0.6, 0.6, 0.6)); //  material
+	auto mesh = parse_obj(model_name, mesh_material);
+
+	hittable_list world;
+
+	// Add the mesh to the world
+	world.add(mesh);
+
+	// Set up a green background
+	auto green_background = make_shared<diffuse_light>(color(0.0, 1.0, 0.0)); // Bright green
+	world.add(make_shared<quad>(
+		point3(-1000, -1000, -1000),  // Bottom-left corner
+		vec3(2000, 0, 0),            // Width vector
+		vec3(0, 2000, 0),            // Height vector
+		green_background
+	));
+	//trex 
+	// fancy mesh scene ! ! !
+	// Construct BVH
+	auto start_time = std::chrono::high_resolution_clock::now();
+	//world = hittable_list(make_shared<bvh_node>(world));
+	//world = hittable_list(make_shared<octree_node>(world));
+	world = hittable_list(make_shared<grid_acceleration>(world));
+
+
+	auto end_time = std::chrono::high_resolution_clock::now();
+	auto elapsed_time = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time).count();
+	std::cout << "Accalaration structure construction time: " << elapsed_time << " micro seconds " << std::endl;
+
+
 
 	// Camera setup
 	camera cam;
 	cam.aspect_ratio = 16.0 / 9.0;
-	cam.image_width = 256;
-	cam.samples_per_pixel = 25;
+	cam.image_width = 640; // 640 
+	cam.samples_per_pixel = 4;
 	cam.max_depth = 20;
-	cam.background = color(0.70, 0.80, 1.00);
+	cam.background = color(0.4, 0.6, 0.4); // Set green background color
 
-	cam.vfov = 30;
-	cam.lookfrom = point3(20, 2, 30);
-	cam.lookat = point3(20, 5, 0);
-	cam.vup = vec3(0, 1, 0);
+	// Position the camera at the center of the mesh's AABB
+	
+	cam.lookfrom = point3(0.2359, -1.9712, 0.6302);  // 
+	cam.lookat = point3(0.0061, -0.0003, -0.3);  // 
 
-	cam.defocus_angle = 0;
+
+
+	cam.vfov = 10 ;                                 // Field of view
 
 	// Render the scene
 	cam.render(world);
@@ -617,6 +736,8 @@ int main() {
 		case 10: mesh_scene("../../../mesh/model_to_big.obj");    break;
 		case 11: mesh_scene("../../../mesh/model9.obj"); break;
 		case 12: fancy_mesh_scene("../../../mesh/model9.obj");	 ; break;
+		case 13: shadow_scene("../../../mesh/separated_mesh_5.obj"); break;
+		case 14: Trex("../../../mesh/mesh_from_nerf.obj"); break;
 		case 20: d20_scene();                 break;
 		default: final_scene(400,   250,  4); break;
 	}
